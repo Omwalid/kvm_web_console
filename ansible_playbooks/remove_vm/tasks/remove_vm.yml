@@ -1,0 +1,10 @@
+---
+- name: destroy a vm
+  virt:
+   command: destroy
+   name: '{{ vm.name }}'
+  ignore_errors: True
+
+- name: undefine the vm
+  command: 'virsh undefine {{ vm.name }} --remove-all-storage'
+  

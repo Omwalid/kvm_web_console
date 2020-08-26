@@ -1,0 +1,1 @@
+{"server_ip":"192.168.122.1","vnet":{"name":"vnet3","bridge_name":"virbr2","mode":"nat","gateway_ip":"192.168.52.1","netmask":"255.255.255.0","dhcp_start":"192.168.52.2","dhcp_end":"192.168.52.100"}}

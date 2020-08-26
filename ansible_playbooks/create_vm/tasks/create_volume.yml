@@ -1,0 +1,4 @@
+---
+- name: create a volume
+  command: 'virsh vol-create-as {{ vm.volume.pool }} {{ vm.volume.name }} {{ vm.volume.size }} --format {{ vm.volume.type }}'
+  become: yes

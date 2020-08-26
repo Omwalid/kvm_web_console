@@ -1,0 +1,17 @@
+---
+- name: create a vnet
+  virt_net:
+   command: define
+   name: '{{ vnet.name }}'
+   xml: "{{ lookup('template', 'vnet_template.xml.j2') }}"
+
+- name: autostart
+  virt_net:
+   autostart: yes
+   name: '{{ vnet.name }}'
+
+- name: strat the vnet
+  virt_net:
+   command: create
+   name: '{{ vnet.name }}'
+  

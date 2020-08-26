@@ -1,0 +1,26 @@
+- name: create pool folder
+  file:
+   path: '/var/lib/libvirt/images/{{ vm.volume.pool }}'
+   state: directory
+
+- name: create a pool
+  virt_pool:
+   command: define
+   name: '{{ vm.volume.pool }}'
+   xml: "{{ lookup('template', 'pool_template.xml.j2') }}"
+
+- name: autostart
+  virt_pool:
+   autostart: yes
+   name: '{{ vm.volume.pool }}'
+
+- name: build the pool
+  virt_pool:
+   command: build
+   name: '{{ vm.volume.pool }}'
+
+- name: start the pool
+  virt_pool:
+   command: create
+   name: '{{ vm.volume.pool }}'
+

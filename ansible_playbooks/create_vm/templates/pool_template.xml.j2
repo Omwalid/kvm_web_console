@@ -1,0 +1,12 @@
+<pool type='dir'>
+  <name>{{ vm.volume.pool }}</name>
+  <capacity unit='bytes'>0</capacity>
+  <allocation unit='bytes'>0</allocation>
+  <available unit='bytes'>0</available>
+  <source>
+  </source>
+  <target>
+    <path>/var/lib/libvirt/images/{{ vm.volume.pool }}</path>
+  </target>
+</pool>
+

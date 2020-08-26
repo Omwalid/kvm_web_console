@@ -1,0 +1,11 @@
+<network>
+  <name>{{ vnet.name}}</name>
+  <forward mode='{{ vnet.mode}}'/>
+  <bridge name='{{ vnet.bridge_name}}' stp='on' delay='0'/>
+  <mac address='{{ mac_add.stdout_lines.0 }}'/>
+  <ip address='{{ vnet.gateway_ip }}' netmask='{{ vnet.netmask}}'>
+    <dhcp>
+      <range start='{{ vnet.dhcp_start }}' end='{{ vnet.dhcp_end }}'/>
+    </dhcp>
+  </ip>
+</network>

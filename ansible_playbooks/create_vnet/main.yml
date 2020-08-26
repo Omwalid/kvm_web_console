@@ -1,0 +1,22 @@
+---
+- name: create a vnet
+  hosts: '{{ server_ip }}'
+  become: yes
+  vars_files:
+  - vars/test.json
+
+  tasks:
+  - name: list all vnets
+    virt_net:
+     command: list_nets
+    register: all_nets
+
+  - name: run macgen.py
+    command: ./macgen.py 
+    register: mac_add
+
+ 
+  - include: tasks/create_vnet.yml
+    when: vnet.name not in all_nets.list_nets
+
+ 

@@ -1,0 +1,1 @@
+{"server_ip":"192.168.122.1","vm":{"name":"testVM8","ram":1048576,"vcpus":1,"vnet":{"name":"vnet2"},"volume":{"name":"ansVolume3","pool":"testPool","size":"12G","type":"qcow2"}}}

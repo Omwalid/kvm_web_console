@@ -1,0 +1,7 @@
+--- 
+- name: create the first VM
+  virt:
+   command: define
+   xml: "{{ lookup('template', 'vm_template.xml.j2') }}"
+   autostart: yes
+ 

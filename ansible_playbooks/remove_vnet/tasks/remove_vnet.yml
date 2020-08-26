@@ -1,0 +1,12 @@
+---
+- name: destroy a vnet
+  virt_net:
+   command: destroy
+   name: '{{ vnet.name }}'
+  ignore_errors: True
+
+- name: undefine the vnet
+  virt_net:
+   command: undefine
+   name: '{{ vnet.name }}'
+  

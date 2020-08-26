@@ -1,0 +1,11 @@
+---
+- name: Ensure that the storage pool is active
+  virt_pool:
+   state: active
+   name: '{{ vm.volume.pool }}'
+
+- name: Ensure that the vnet is active
+  virt_net:
+   state: active
+   name: '{{ vm.vnet.name }}'
+

@@ -1,0 +1,25 @@
+---
+- name: create a KVM guest
+  hosts: '{{ server_ip}}'
+  become: yes
+  vars_files:
+  - vars/test.json
+
+  tasks:
+  - name: list all pools
+    virt_pool:
+     command: list_pools
+    register: all_pools
+
+  - include: tasks/create_pool.yml
+    when: vm.volume.pool not in all_pools.list_pools
+
+  - include: tasks/create_volume.yml
+
+  - include: tasks/activate.yml
+
+  - name: run macgen.py
+    command: ./macgen.py
+    register: mac_add
+
+  - include: tasks/create_vm.yml 

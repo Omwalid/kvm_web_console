@@ -1,0 +1,11 @@
+---
+- name: remove a vm
+  hosts: '{{ server_ip }}'
+  become: yes
+  vars_files:
+  - vars/test.json
+
+  tasks:
+  - include: tasks/remove_vm.yml
+
+ 
