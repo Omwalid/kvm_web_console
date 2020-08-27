@@ -1,26 +1,51 @@
 
 #! /bin/bash
 
-#file script name is : vms_info
+#file script name is : sys_info
 #description:
 #creation date Sat 22 Aug 15:11:33 CET 2020
 #Created by: omw
 
    n=3;
+   k=3;
    m=3;
    while [[ $(virsh --connect qemu:///system list --all | head -n $n | tail -n1) ]]
 
    do
+    
 vnet_name=`virsh --connect qemu:///system list --all | head -n $n |tail -n1 | awk {print'$2'}`
+
+ while [[  $(virsh --connect qemu:///system domblklist $vnet_name | head -n $k | tail -n1)  ]]
+  do
+    if [[ ! $(virsh --connect qemu:///system domblklist $vnet_name | head -n $k | tail -n1 | egrep *iso*) ]]
+    then
+      path=$(virsh --connect qemu:///system domblklist $vnet_name | head -n $k | tail -n1 | awk {'print $2'})
+      if [[ ! -z $storage ]]
+      then storage+=','
+      fi
+      storage+=`echo "{
+\"storage_format\": \"$(sudo qemu-img info $path | grep 'file format' | awk {'print $3'})\",
+\"storage_path\": \"$path\",
+\"storage_size\": \"$(sudo qemu-img info $path | grep 'virtual size' | awk {'print $3'})\"
+}"`
+    fi
+    let "k=k+1"
+  done
+    
 mac_add=`virsh --connect qemu:///system domiflist $vnet_name | head -n 3 |tail -n1 |  awk {print'$5'} `
-vnets+=`echo  "{
+     if [[ ! -z $vms ]]
+     then vms+=','
+     fi
+
+vms+=`echo  "{
 \"vm_name\" : \"$vnet_name\",
 \"vm_state\": \"$(virsh --connect qemu:///system list --all | head -n $n |tail -n1 | awk {print'$3$4'})\",
 \"vcpus\": \"$(virsh --connect qemu:///system dominfo $vnet_name | grep -i 'cpu(s)' | awk {'print $2 '})\",
 \"memory\": \"$(virsh --connect qemu:///system dominfo $vnet_name | grep -i 'used memory' | awk {'print $3'})\",
 \"vnet\": \"$(virsh --connect qemu:///system domiflist $vnet_name | head -n 3 |tail -n1 |  awk {print'$3'})\",
-\"ip_add\": \"$(ip neigh | grep  $mac_add |  awk {print'$1'})\" 
-}@"`
+\"ip_add\": \"$(ip neigh | grep  $mac_add |  awk {print'$1'})\",
+\"storage\": [$storage]
+}"`
    let "n=n+1"
    done
 
@@ -28,8 +53,12 @@ vnets+=`echo  "{
 
    do
 vnet_name=`virsh --connect qemu:///system net-list --all | head -n $m |tail -n1 | awk {print'$1'}`
+   
+     if [[ ! -z $vnets ]]
+     then vnets+=','
+     fi
 
-vnets+=`echo  "@{
+vnets+=`echo  "{
 \"vnet_name\" : \"$vnet_name\",
 \"vnet_state\": \"$(virsh --connect qemu:///system net-list --all | head -n $m |tail -n1 | awk {print'$2'})\",
 \"type\": \"$(virsh --connect qemu:///system net-dumpxml $vnet_name | grep 'forward' | head -n1 | cut -d "'" -f 2)\",
@@ -43,4 +72,4 @@ vnets+=`echo  "@{
    done
        
 
-echo $vnets        
+echo "{\"vms\":[$vms],\"vnets\":[$vnets]}"        

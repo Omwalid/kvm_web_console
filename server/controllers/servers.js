@@ -27,7 +27,7 @@ exports.serverList = async (req, res) => {
 
 exports.deleteServer = async (req, res) => {
     try {
-        var serverDelete = await query("delete servers, vnets, vms from servers left join vnets on servers.server_id=vnets.server_id  left join vms on servers.server_id=vms.server_id where servers.server_id=?;",req.params.server_id)
+        var serverDelete = await query("delete servers, vnets, vms from servers left join vnets on servers.server_id=vnets.server_id  left join vms on servers.server_id=vms.server_id left join storage on vms.vm_id=storage.vm_id  where servers.server_id=?;",req.params.server_id)
         if (serverDelete.affectedRows === 0) {
             return res.status(409).json({ deleted: false });
         }
@@ -104,19 +104,10 @@ exports.update = async (req, res) => {
     var vms=[];
     var promise = new Promise((resolve, reject) => {
         myShellScript.stdout.on('data', (data) => {
-            var str = data.split('@@')
-            var vs=[]
-            var vss=[]
-            for (var i in str) {
-                if (str[i] === '\n') { return resolve() }
-                var substr=str[i].split('@')
-                for(var j in substr){
-                  if(i==0){vs[j] = JSON.parse(substr[j]);}
-                   else vss[j] = JSON.parse(substr[j]);
-                }
-                if(i==0){vms=vs}
-                else{vnets=vss}
-            }
+             sys_info=JSON.parse(data)
+             console.log(sys_info);
+             vms=sys_info.vms
+             vnets=sys_info.vnets
             resolve()
         })
     })
@@ -131,8 +122,15 @@ exports.update = async (req, res) => {
             var adding = await query('INSERT INTO vnets SET ?', vnets[i])
         }
         for(var i in vms){
+            storage=vms[i].storage
             vms[i].server_id=server_id
+            delete vms[i].storage
             var adding = await query('INSERT INTO vms SET ?', vms[i])
+            vm_id=adding.insertId
+            for(var k in storage){
+             storage[k].vm_id=vm_id
+             var adding2 = await query('INSERT INTO storage SET ?', storage[k])
+            }
         }
         res.status(200).end();
     }
