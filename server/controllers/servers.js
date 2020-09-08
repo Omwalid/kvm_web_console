@@ -105,7 +105,6 @@ exports.update = async (req, res) => {
     var promise = new Promise((resolve, reject) => {
         myShellScript.stdout.on('data', (data) => {
              sys_info=JSON.parse(data)
-             console.log(sys_info);
              vms=sys_info.vms
              vnets=sys_info.vnets
             resolve()

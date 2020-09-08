@@ -14,10 +14,40 @@ class Register extends Component {
             userName: '',
             email: '',
             password: '',
+            confpassword: '',
+            error: ''
         }
         this.handleInputChange = this.handleInputChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
     }
+
+    FormIsNotEmpty() {
+        if (this.state.fullName && this.state.userName && this.state.password && this.state.email && this.state.confpassword) {
+            return true
+        }
+        else return false
+    }
+    PasswordIsValid() {
+        if (this.state.password.length < 6) {
+            this.setState({ error: "password should contain more than 6 characters" })
+            return false
+        }
+        else if (this.state.password !== this.state.confpassword) {
+            this.setState({ error: "passwords don't match" })
+            return false
+        }
+        else return true
+    }
+    FormIsValid() {
+        if (!this.FormIsNotEmpty()) {
+            this.setState({ error: "Please fill all fields" })
+            return false
+        }
+        else if (!this.PasswordIsValid()) { return false }
+        else return true
+    }
+
+
 
     handleInputChange(event) {
         const target = event.target;
@@ -32,32 +62,37 @@ class Register extends Component {
     handleSubmit(event) {
         event.preventDefault();
 
-        const user = {
-            fullName: this.state.fullName,
-            userName: this.state.userName,
-            email: this.state.email,
-            password: this.state.password
-        }
+        if (this.FormIsValid()) {
 
-        axios.post(`http://localhost:5000/users/register`, user, { withCredentials: true })
-            .then(
-                res => {
-                    if (res.status === 201 && res.data.userAdded === true) {
-                        this.props.change_status(true, res.data.user)
+            const user = {
+                fullName: this.state.fullName,
+                userName: this.state.userName,
+                email: this.state.email,
+                password: this.state.password
+            }
+
+            axios.post(`http://localhost:5000/users/register`, user, { withCredentials: true })
+                .then(
+                    res => {
+                        if (res.status === 201 && res.data.userAdded === true) {
+                            this.props.change_status(true, res.data.user)
+                        }
                     }
-                }
-            )
-            .catch(e => {
-                if (e.response.status === 409) {
-                   alert("email already exists !")
-                }
-                else console.log(e);
-            })
+                )
+                .catch(e => {
+                    if (e.response.status === 409) {
+                     //   alert("email already exists !")
+                     this.setState({ error: "email already exists !" })
+                    }
+                    else console.log(e);
+                })
+        } else console.log("error");
     }
     render() {
         return (
             <div className="container">
                 <div className="col-12 col-md-5 m-1">
+                    <p style={{ color: "red" }}>{this.state.error}</p>
                     <Form onSubmit={this.handleSubmit}>
                         <Form.Group controlId="formBasicFullName">
                             <Form.Label>Full-name</Form.Label>
@@ -80,8 +115,10 @@ class Register extends Component {
                             <Form.Control type="password" name="password" value={this.state.password}
                                 onChange={this.handleInputChange} placeholder="Password" />
                         </Form.Group>
-                        <Form.Group controlId="formBasicCheckbox">
-                            <Form.Check type="checkbox" label="Check me out" />
+                        <Form.Group controlId="formBasicPassword">
+                            <Form.Label>Confirm the Password</Form.Label>
+                            <Form.Control type="password" name="confpassword" value={this.state.confpassword}
+                                onChange={this.handleInputChange} placeholder="Confirm the Password" />
                         </Form.Group>
                         <Button variant="primary" type="submit" >
                             Submit
